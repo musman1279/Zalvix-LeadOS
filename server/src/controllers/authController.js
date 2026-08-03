@@ -4,37 +4,37 @@ import catchAsync from "../utils/catchAsync.js";
 import sendToken from "../utils/sendToken.js";
 
 export const registerUser = catchAsync(async (req, res, next) => {
-  // 1. Get Data From Request Body
-  const { name, email, password } = req.body;
+    // 1. Get Data From Request Body
+    const { name, email, password } = req.body;
 
-  // 2. Check Required Fields
-  if (!name || !email || !password) {
-    return next(new ApiError("Please fill all required fields", 400));
-  }
+    // 2. Check Required Fields
+    if (!name || !email || !password) {
+        return next(new ApiError("Please fill all required fields", 400));
+    }
 
-  // 3. Check Existing User
-  const existingUser = await User.findOne({ email });
+    // 3. Check Existing User
+    const existingUser = await User.findOne({ email });
 
-  if (existingUser) {
-    return next(new ApiError("Email already exists", 409));
-  }
+    if (existingUser) {
+        return next(new ApiError("Email already exists", 409));
+    }
 
-  // 4. Create New User
-  await User.create({
-    name,
-    email,
-    password,
-  });
+    // 4. Create New User
+    const user = await User.create({
+        name,
+        email,
+        password,
+    });
 
-  // 5. Send Response
-  res.status(201).json({
-    success: true,
-    message: "Account created successfully. Please login to continue.",
-  });
+    // 5. Send Response
+    res.status(201).json({
+        success: true,
+        message: "Account created successfully. Please login to continue.",
+    });
 });
 
 
-// create Login User Controller
+// User Login Controller
 
 export const loginUser = catchAsync(async (req, res, next) => {
     // 1. Get Email & Password
@@ -61,6 +61,23 @@ export const loginUser = catchAsync(async (req, res, next) => {
     }
 
     // 6. Send JWT Token
-    sendToken(user, 200, res, "Login successful");
+    return sendToken(user, 200, res, "Login successful");
 });
 
+
+// User Logout Controller
+
+export const logoutUser = (req, res) => {
+    return res
+        .status(200)
+        .cookie("token", null, {
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        })
+        .json({
+            success: true,
+            message: "Logged out successfully",
+        });
+};
