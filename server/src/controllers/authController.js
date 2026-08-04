@@ -4,6 +4,7 @@ import catchAsync from "../utils/catchAsync.js";
 import sendToken from "../utils/sendToken.js";
 
 export const registerUser = catchAsync(async (req, res, next) => {
+     console.log("next =", typeof next);
     // 1. Get Data From Request Body
     const { name, email, password } = req.body;
 
@@ -81,3 +82,13 @@ export const logoutUser = (req, res) => {
             message: "Logged out successfully",
         });
 };
+
+
+// Get Current User (/me)
+
+export const getMe = catchAsync(async (req, res, next) => {
+    return res.status(200).json({
+        success: true,
+        user: req.user,
+    });
+});

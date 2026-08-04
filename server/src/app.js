@@ -38,12 +38,12 @@ app.use(hpp());
 app.use("/api", apiLimiter);
 
 // Test Route
-app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "Welcome to Zalvix LeadOS API",
-    });
-});
+// app.get("/", (req, res) => {
+//     res.json({
+//         success: true,
+//         message: "Welcome to Zalvix LeadOS API",
+//     });
+// });
 app.get("/test", (req, res, next) => {
   return next(new ApiError("Testing Global Error Handler", 400));
 });
