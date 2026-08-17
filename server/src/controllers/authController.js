@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import ApiError from "../utils/ApiError.js";
 import catchAsync from "../utils/catchAsync.js";
 import sendToken from "../utils/sendToken.js";
+import crypto from "crypto";
 
 export const registerUser = catchAsync(async (req, res, next) => {
      console.log("next =", typeof next);
@@ -86,9 +87,45 @@ export const logoutUser = (req, res) => {
 
 // Get Current User (/me)
 
-export const getMe = catchAsync(async (req, res, next) => {
-    return res.status(200).json({
+export const getCurrentUser = catchAsync(async (req, res, next) => {
+    res.status(200).json({
         success: true,
         user: req.user,
+    });
+});
+
+
+// Forgot Password Controller
+
+export const forgotPassword = catchAsync(async (req, res, next) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return next(new ApiError("Please enter your email", 400));
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return next(new ApiError("User not found", 404));
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+    user.resetPasswordToken = hashedToken;
+
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+        success: true,
+        message: "Password reset token generated",
+        resetToken,
     });
 });

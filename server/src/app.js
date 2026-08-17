@@ -9,6 +9,7 @@ import hpp from "hpp";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import ApiError from "./utils/ApiError.js";
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
 
@@ -49,6 +50,11 @@ app.get("/test", (req, res, next) => {
 });
 app.use("/api/v1/auth", authRoutes);
 http://localhost:5000/api/v1/auth/register
+
+app.use("/api/v1/admin", adminRoutes);
+
+
+
 // Error Middleware (Always Last)
 app.use(errorMiddleware);
 
