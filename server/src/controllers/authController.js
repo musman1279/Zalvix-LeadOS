@@ -129,3 +129,49 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
         resetToken,
     });
 });
+
+// Reset Password Controller
+
+export const resetPassword = catchAsync(async (req, res, next) => {
+    const { password, confirmPassword } = req.body;
+
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(req.params.token)
+        .digest("hex");
+
+    const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        return next(
+            new ApiError("Reset token is invalid or has expired", 400)
+        );
+    }
+
+    if (!password || !confirmPassword) {
+        return next(
+            new ApiError("Please enter password and confirm password", 400)
+        );
+    }
+
+    if (password !== confirmPassword) {
+        return next(
+            new ApiError("Passwords do not match", 400)
+        );
+    }
+
+    user.password = password;
+
+    user.resetPasswordToken = null;
+    user.resetPasswordExpire = null;
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Password reset successful",
+    });
+});
