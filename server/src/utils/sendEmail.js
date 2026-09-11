@@ -23,12 +23,19 @@ const sendEmail = async ({ email, subject, message }) => {
 
     console.log("Gmail SMTP authentication successful!");
 
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
         from: `"Zalvix LeadOS" <${process.env.EMAIL_USER}>`,
         to: email,
         subject,
         text: message,
     });
+
+    console.log("EMAIL SENT SUCCESSFULLY");
+    console.log("Message ID:", info.messageId);
+    console.log("Accepted:", info.accepted);
+    console.log("Rejected:", info.rejected);
+
+    return info;
 };
 
 export default sendEmail;

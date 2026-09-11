@@ -125,13 +125,13 @@ If you did not create this account, please ignore this email.
 // Verify Email Controller
 
 export const verifyEmail = catchAsync(async (req, res, next) => {
-       console.log("RAW TOKEN:", req.params.token);
+    console.log("RAW TOKEN:", req.params.token);
     // 1. Hash Token From URL
     const hashedToken = crypto
         .createHash("sha256")
         .update(req.params.token)
         .digest("hex");
- console.log("HASHED TOKEN:", hashedToken);
+    console.log("HASHED TOKEN:", hashedToken);
     console.log("CURRENT TIME:", Date.now());
 
     // 2. Find User With Valid Token
@@ -139,7 +139,7 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
         verificationToken: hashedToken,
         verificationTokenExpire: { $gt: Date.now() },
     });
-  console.log("USER FOUND:", user ? user.email : null);
+    console.log("USER FOUND:", user ? user.email : null);
     // 3. Check Token
     if (!user) {
         return next(
@@ -387,9 +387,7 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${req.protocol}://${req.get(
-        "host"
-    )}/api/v1/auth/reset-password/${resetToken}`;
+   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
     const message = `
 You requested a password reset.
